@@ -42,7 +42,7 @@
                 
                 <button type="submit">Ingresar</button>
             </form>
-            
+            <div>&nbsp</div>
             <div class="register-link">
                 <p>¿No tienes una cuenta? <a href="index.php?controller=Auth&action=register">Regístrate</a></p>
             </div>
