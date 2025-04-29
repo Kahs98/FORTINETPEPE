@@ -1,57 +1,100 @@
 <?php
 /**
- * Clase de conexión a la base de datos
- * Implementa el patrón Singleton para mantener una única conexión
+ * Modelo de Usuario
+ * Gestiona todas las operaciones relacionadas con los usuarios en la base de datos
  */
-class Database {
-    private static $instance = null;
-    private $connection;
+class UserModel {
+    private $db;
 
     /**
-     * Constructor privado para evitar instanciación directa
+     * Constructor
      */
-    private function __construct() {
+    public function __construct() {
+        $this->db = Database::getInstance()->getConnection();
+    }
+
+    /**
+     * Buscar un usuario por su nombre de usuario
+     * 
+     * @param string $username Nombre de usuario
+     * @return array|false Datos del usuario o false si no existe
+     */
+    public function getUserByUsername($username) {
         try {
-            $dsn = "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4";
-            $options = [
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                PDO::ATTR_EMULATE_PREPARES => false,
-            ];
+            $query = "SELECT * FROM users WHERE username = :username";
+            $statement = $this->db->prepare($query);
+            $statement->bindParam(':username', $username, PDO::PARAM_STR);
+            $statement->execute();
             
-            $this->connection = new PDO($dsn, DB_USER, DB_PASS, $options);
+            return $statement->fetch();
         } catch (PDOException $e) {
-            // En producción, manejar este error de forma más adecuada
-            die("Error de conexión a la base de datos: " . $e->getMessage());
+            error_log('Error en getUserByUsername: ' . $e->getMessage());
+            return false;
         }
     }
 
     /**
-     * Obtener instancia de la conexión (Singleton)
+     * Obtener un usuario por su ID
+     * 
+     * @param int $id ID del usuario
+     * @return array|false Datos del usuario o false si no existe
      */
-    public static function getInstance() {
-        if (self::$instance === null) {
-            self::$instance = new self();
+    public function getUserById($id) {
+        try {
+            $query = "SELECT * FROM users WHERE id = :id";
+            $statement = $this->db->prepare($query);
+            $statement->bindParam(':id', $id, PDO::PARAM_INT);
+            $statement->execute();
+            
+            return $statement->fetch();
+        } catch (PDOException $e) {
+            error_log('Error en getUserById: ' . $e->getMessage());
+            return false;
         }
-        return self::$instance;
     }
 
     /**
-     * Obtener la conexión PDO
+     * Crear un nuevo usuario
+     * 
+     * @param string $username Nombre de usuario
+     * @param string $password Contraseña (sin hashear)
+     * @param string $email Correo electrónico
+     * @return int|false ID del usuario creado o false si hay un error
      */
-    public function getConnection() {
-        return $this->connection;
+    public function createUser($username, $password, $email) {
+        try {
+            // Hashear la contraseña
+            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+            
+            $query = "INSERT INTO users (username, password, email) VALUES (:username, :password, :email)";
+            $statement = $this->db->prepare($query);
+            
+            $statement->bindParam(':username', $username, PDO::PARAM_STR);
+            $statement->bindParam(':password', $hashedPassword, PDO::PARAM_STR);
+            $statement->bindParam(':email', $email, PDO::PARAM_STR);
+            
+            $statement->execute();
+            return $this->db->lastInsertId();
+        } catch (PDOException $e) {
+            error_log('Error en createUser: ' . $e->getMessage());
+            return false;
+        }
     }
 
     /**
-     * Evitar clonar la instancia
+     * Verificar si las credenciales son válidas
+     * 
+     * @param string $username Nombre de usuario
+     * @param string $password Contraseña
+     * @return array|false Datos del usuario si las credenciales son válidas, false en caso contrario
      */
-    private function __clone() {}
-
-    /**
-     * Evitar deserializar la instancia
-     */
-    public function __wakeup() {
-        throw new Exception("No se puede deserializar un singleton.");
+    public function authenticate($username, $password) {
+        $user = $this->getUserByUsername($username);
+        
+        if ($user && password_verify($password, $user['password'])) {
+            return $user;
+        }
+        
+        return false;
     }
 }

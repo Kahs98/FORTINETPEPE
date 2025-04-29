@@ -1,100 +1,137 @@
 <?php
 /**
- * Modelo de Usuario
- * Gestiona todas las operaciones relacionadas con los usuarios en la base de datos
+ * Controlador de Autenticación
+ * Maneja login, logout y registro de usuarios
  */
-class UserModel {
-    private $db;
-
+class AuthController {
+    private $userModel;
+    
     /**
      * Constructor
      */
     public function __construct() {
-        $this->db = Database::getInstance()->getConnection();
+        $this->userModel = new UserModel();
     }
-
+    
     /**
-     * Buscar un usuario por su nombre de usuario
-     * 
-     * @param string $username Nombre de usuario
-     * @return array|false Datos del usuario o false si no existe
+     * Mostrar la página de login
      */
-    public function getUserByUsername($username) {
-        try {
-            $query = "SELECT * FROM users WHERE username = :username";
-            $statement = $this->db->prepare($query);
-            $statement->bindParam(':username', $username, PDO::PARAM_STR);
-            $statement->execute();
-            
-            return $statement->fetch();
-        } catch (PDOException $e) {
-            error_log('Error en getUserByUsername: ' . $e->getMessage());
-            return false;
-        }
-    }
-
-    /**
-     * Obtener un usuario por su ID
-     * 
-     * @param int $id ID del usuario
-     * @return array|false Datos del usuario o false si no existe
-     */
-    public function getUserById($id) {
-        try {
-            $query = "SELECT * FROM users WHERE id = :id";
-            $statement = $this->db->prepare($query);
-            $statement->bindParam(':id', $id, PDO::PARAM_INT);
-            $statement->execute();
-            
-            return $statement->fetch();
-        } catch (PDOException $e) {
-            error_log('Error en getUserById: ' . $e->getMessage());
-            return false;
-        }
-    }
-
-    /**
-     * Crear un nuevo usuario
-     * 
-     * @param string $username Nombre de usuario
-     * @param string $password Contraseña (sin hashear)
-     * @param string $email Correo electrónico
-     * @return int|false ID del usuario creado o false si hay un error
-     */
-    public function createUser($username, $password, $email) {
-        try {
-            // Hashear la contraseña
-            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-            
-            $query = "INSERT INTO users (username, password, email) VALUES (:username, :password, :email)";
-            $statement = $this->db->prepare($query);
-            
-            $statement->bindParam(':username', $username, PDO::PARAM_STR);
-            $statement->bindParam(':password', $hashedPassword, PDO::PARAM_STR);
-            $statement->bindParam(':email', $email, PDO::PARAM_STR);
-            
-            $statement->execute();
-            return $this->db->lastInsertId();
-        } catch (PDOException $e) {
-            error_log('Error en createUser: ' . $e->getMessage());
-            return false;
-        }
-    }
-
-    /**
-     * Verificar si las credenciales son válidas
-     * 
-     * @param string $username Nombre de usuario
-     * @param string $password Contraseña
-     * @return array|false Datos del usuario si las credenciales son válidas, false en caso contrario
-     */
-    public function authenticate($username, $password) {
-        $user = $this->getUserByUsername($username);
-        
-        if ($user && password_verify($password, $user['password'])) {
-            return $user;
+    public function index() {
+        // Si ya está autenticado, redirigir al dashboard
+        if (isset($_SESSION['is_logged_in']) && $_SESSION['is_logged_in']) {
+            redirect('index.php?controller=Dashboard&action=index');
         }
         
-        return false;
+        // Incluir la vista de login
+        include 'views/login.php';
+    }
+    
+    /**
+     * Procesar solicitud de login (AJAX)
+     */
+    public function login() {
+        // Verificar si es una solicitud AJAX y POST
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Obtener datos del formulario
+            $username = isset($_POST['username']) ? trim($_POST['username']) : '';
+            $password = isset($_POST['password']) ? $_POST['password'] : '';
+            
+            // Validar datos
+            if (empty($username) || empty($password)) {
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Por favor complete todos los campos'
+                ]);
+                exit();
+            }
+            
+            // Intentar autenticar al usuario
+            $user = $this->userModel->authenticate($username, $password);
+            
+            if ($user) {
+                // Autenticación exitosa
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['username'] = $user['username'];
+                $_SESSION['is_logged_in'] = true;
+                
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Inicio de sesión exitoso'
+                ]);
+            } else {
+                // Autenticación fallida
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Usuario o contraseña incorrectos'
+                ]);
+            }
+            exit();
+        }
+        
+        // Si no es POST, redirigir al login
+        redirect('index.php?controller=Auth&action=index');
+    }
+    
+    /**
+     * Cerrar sesión
+     */
+    public function logout() {
+        // Destruir datos de sesión
+        session_unset();
+        session_destroy();
+        
+        // Redirigir al login
+        redirect('index.php?controller=Auth&action=index');
+    }
+    
+    /**
+     * Mostrar formulario de registro
+     */
+    public function register() {
+        // Si ya está autenticado, redirigir al dashboard
+        if (isset($_SESSION['is_logged_in']) && $_SESSION['is_logged_in']) {
+            redirect('index.php?controller=Dashboard&action=index');
+        }
+        
+        // Incluir la vista de registro
+        include 'views/register.php';
+    }
+    
+    /**
+     * Procesar solicitud de registro
+     */
+    public function doRegister() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Obtener datos del formulario
+            $username = isset($_POST['username']) ? trim($_POST['username']) : '';
+            $password = isset($_POST['password']) ? $_POST['password'] : '';
+            $email = isset($_POST['email']) ? trim($_POST['email']) : '';
+            
+            // Validar datos
+            if (empty($username) || empty($password) || empty($email)) {
+                setFlashMessage('error', 'Por favor complete todos los campos');
+                redirect('index.php?controller=Auth&action=register');
+            }
+            
+            // Verificar si el usuario ya existe
+            if ($this->userModel->getUserByUsername($username)) {
+                setFlashMessage('error', 'El nombre de usuario ya está en uso');
+                redirect('index.php?controller=Auth&action=register');
+            }
+            
+            // Crear usuario
+            $userId = $this->userModel->createUser($username, $password, $email);
+            
+            if ($userId) {
+                setFlashMessage('success', 'Registro exitoso. Ahora puede iniciar sesión.');
+                redirect('index.php?controller=Auth&action=index');
+            } else {
+                setFlashMessage('error', 'Error al registrar el usuario');
+                redirect('index.php?controller=Auth&action=register');
+            }
+        }
+        
+        // Si no es POST, redirigir al formulario de registro
+        redirect('index.php?controller=Auth&action=register');
     }
 }
