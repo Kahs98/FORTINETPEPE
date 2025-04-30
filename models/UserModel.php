@@ -123,5 +123,9 @@ class UserModel {
         return $stmt->execute([$token, $expira, $userId]);
     }
     
+    public function actualizarPasswordPorEmail($email, $hashedPassword) {
+        $stmt = $this->db->prepare("UPDATE users SET password = ? WHERE email = ?");
+        return $stmt->execute([$hashedPassword, $email]);
+    }
     
 }

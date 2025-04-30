@@ -154,20 +154,21 @@ class AuthController {
                 redirect('index.php?controller=Auth&action=forgot');
             }
     
-            // ✅ Empieza aquí la parte nueva:
             require 'librerias/PHPMailer/src/PHPMailer.php';
             require 'librerias/PHPMailer/src/SMTP.php';
             require 'librerias/PHPMailer/src/Exception.php';
-            
     
             $usuario = $this->userModel->getUserByEmail($email);
     
             if ($usuario) {
-                $token = bin2hex(random_bytes(16));
-                $expira = date('Y-m-d H:i:s', strtotime('+1 hour'));
-                $this->userModel->guardarToken($usuario['id'], $token, $expira);
-                $link = "http://localhost/PEPE_TESIS/FORTINETPEPE/index.php?controller=Auth&action=resetPassword&token=$token";
-  
+                // 1. Generar contraseña aleatoria
+                $nuevaClave = substr(bin2hex(random_bytes(4)), 0, 8); // ej. 8 caracteres
+    
+                // 2. Hashear y actualizar en BD
+                $hashed = password_hash($nuevaClave, PASSWORD_DEFAULT);
+                $this->userModel->actualizarPasswordPorEmail($email, $hashed);
+    
+                // 3. Enviar por correo
                 $mail = new PHPMailer(true);
     
                 try {
@@ -175,29 +176,30 @@ class AuthController {
                     $mail->Host = 'smtp.gmail.com';
                     $mail->SMTPAuth = true;
                     $mail->Username = 'govshieldtesis@gmail.com';
-                    $mail->Password = 'yuopnnjzqfubfmpc'; // sin espacios
+                    $mail->Password = 'yuopnnjzqfubfmpc';
                     $mail->SMTPSecure = 'tls';
                     $mail->Port = 587;
+                    $mail->CharSet = 'UTF-8';
     
                     $mail->setFrom('govshieldtesis@gmail.com', 'Sistema GOVSHIELD');
                     $mail->addAddress($email);
     
                     $mail->isHTML(true);
-                    $mail->Subject = 'Recuperación de contraseña';
+                    $mail->Subject = 'Tu nueva contraseña de acceso';
                     $mail->Body    = "Hola <b>{$usuario['username']}</b>,<br><br>
-                                      Haz clic en el siguiente enlace para restablecer tu contraseña:<br>
-                                      <a href='$link'>$link</a><br><br>
-                                      Si no solicitaste esto, puedes ignorar este mensaje.";
+                                      Se ha generado una nueva contraseña temporal para tu cuenta:<br><br>
+                                      <b>{$nuevaClave}</b><br><br>
+                                      Te recomendamos cambiarla luego desde tu perfil.<br><br>
+                                      Si no solicitaste este cambio, por favor contáctanos.";
     
                     $mail->send();
-                    setFlashMessage('success', 'Correo enviado con instrucciones para restablecer tu contraseña.');
+                    setFlashMessage('success', 'Se generó una nueva contraseña y fue enviada a tu correo.');
                 } catch (Exception $e) {
                     error_log("Mailer Error: {$mail->ErrorInfo}");
                     setFlashMessage('error', 'No se pudo enviar el correo. Intenta más tarde.');
                 }
             } else {
-                // No revelar si el correo existe o no
-                setFlashMessage('success', 'Si el correo está registrado, recibirás un mensaje con instrucciones.');
+                setFlashMessage('success', 'Si el correo está registrado, recibirás una nueva contraseña.');
             }
     
             redirect('index.php?controller=Auth&action=index');
@@ -205,6 +207,7 @@ class AuthController {
     
         redirect('index.php?controller=Auth&action=forgot');
     }
+    
     
     public function resetPassword() {
         // Verifica si ya está logueado
