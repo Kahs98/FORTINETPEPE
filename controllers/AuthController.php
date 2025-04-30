@@ -30,47 +30,42 @@ class AuthController {
      * Procesar solicitud de login (AJAX)
      */
     public function login() {
-        // Verificar si es una solicitud AJAX y POST
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Obtener datos del formulario
             $username = isset($_POST['username']) ? trim($_POST['username']) : '';
             $password = isset($_POST['password']) ? $_POST['password'] : '';
-            
-            // Validar datos
+    
             if (empty($username) || empty($password)) {
                 echo json_encode([
                     'success' => false,
                     'message' => 'Por favor complete todos los campos'
                 ]);
-                exit();
+                exit;
             }
-            
-            // Intentar autenticar al usuario
+    
             $user = $this->userModel->authenticate($username, $password);
-            
+    
             if ($user) {
-                // Autenticación exitosa
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];
                 $_SESSION['is_logged_in'] = true;
-                
+    
                 echo json_encode([
                     'success' => true,
                     'message' => 'Inicio de sesión exitoso'
                 ]);
             } else {
-                // Autenticación fallida
                 echo json_encode([
                     'success' => false,
                     'message' => 'Usuario o contraseña incorrectos'
                 ]);
             }
-            exit();
+            exit;
         }
-        
-        // Si no es POST, redirigir al login
+    
+        // Redirección de seguridad
         redirect('index.php?controller=Auth&action=index');
     }
+    
     
     /**
      * Cerrar sesión
@@ -134,4 +129,34 @@ class AuthController {
         // Si no es POST, redirigir al formulario de registro
         redirect('index.php?controller=Auth&action=register');
     }
+
+        /**
+     * Mostrar formulario para recuperar contraseña
+     */
+    public function forgot() {
+        if (isset($_SESSION['is_logged_in']) && $_SESSION['is_logged_in']) {
+            redirect('index.php?controller=Dashboard&action=index');
+        }
+    
+        include 'views/forgot_password.php';
+    }
+    
+
+    public function sendResetEmail() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $email = isset($_POST['email']) ? trim($_POST['email']) : '';
+    
+            if (empty($email)) {
+                setFlashMessage('error', 'Por favor ingrese su correo electrónico');
+                redirect('index.php?controller=Auth&action=forgot');
+            }
+    
+            // Aquí podrías enviar el correo, buscar al usuario, generar token, etc.
+            setFlashMessage('success', 'Si el correo está registrado, recibirás un mensaje con instrucciones.');
+            redirect('index.php?controller=Auth&action=index');
+        }
+    
+        redirect('index.php?controller=Auth&action=forgot');
+    }
+    
 }
