@@ -6,7 +6,7 @@
     <title><?= APP_NAME ?> - Iniciar Sesión</title>
     <link rel="stylesheet" href="views/assets/css/style.css">
 </head>
-<body>
+<body class="login">
     <div class="container">
         <div class="login-box">
             <div class="lock-container">
