@@ -33,7 +33,7 @@
     $action = isset($_GET['action']) ? $_GET['action'] : 'index';
 
     // Verificar si el usuario está autenticado
-    $publicActions = ['Auth.index', 'Auth.login', 'Auth.register'];
+    $publicActions = ['Auth.index', 'Auth.login', 'Auth.register', 'Auth.forgot', 'Auth.sendResetEmail'];
     $isPublicAction = in_array("$controller.$action", $publicActions);
 
     if (!isset($_SESSION['is_logged_in']) && !$isPublicAction) {

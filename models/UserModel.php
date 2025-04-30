@@ -97,4 +97,31 @@ class UserModel {
         
         return false;
     }
+
+    public function isValidToken($token) {
+        $stmt = $this->db->prepare("SELECT id FROM users WHERE reset_token = ? AND reset_token_expire > NOW()");
+        $stmt->execute([$token]);
+        return $stmt->fetch();
+    }
+    
+    
+    public function updatePasswordByToken($token, $newPassword) {
+        $hashed = password_hash($newPassword, PASSWORD_DEFAULT);
+        $stmt = $this->db->prepare("UPDATE users SET password = ?, reset_token = NULL, reset_token_expire = NULL WHERE reset_token = ?");
+        return $stmt->execute([$hashed, $token]);
+    }
+    
+    
+    public function getUserByEmail($email) {
+        $stmt = $this->db->prepare("SELECT * FROM users WHERE email = ?");
+        $stmt->execute([$email]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+        
+    public function guardarToken($userId, $token, $expira) {
+        $stmt = $this->db->prepare("UPDATE users SET reset_token = ?, reset_token_expire = ? WHERE id = ?");
+        return $stmt->execute([$token, $expira, $userId]);
+    }
+    
+    
 }
