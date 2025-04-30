@@ -397,7 +397,15 @@ body.dashboard .unlock-icon {
     }
 
     body.dashboard .header {
-        padding: 10px 15px;
+        padding: 0 20px;
+        background: #fff;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        height: 60px;
+        position: relative;
+        z-index: 10;
     }
 }
 
@@ -434,4 +442,31 @@ body.dashboard .unlock-icon {
     body.dashboard .logo-container img {
         max-width: 150px;
     }
+}
+
+/* Botón para minimizar barra lateral */
+.toggle-sidebar {
+    font-size: 22px;
+    cursor: pointer;
+    padding: 12px;
+    color: #007bff;;
+}
+
+.toggle-sidebar:hover {
+    color: #0056b3;
+}
+/* Estilo para barra lateral minimizada */
+.sidebar.minimized {
+    width: 60px !important;
+}
+
+.sidebar.minimized .sidebar-brand,
+.sidebar.minimized .sidebar-menu span {
+    display: none;
+}
+
+/* Ajuste del contenido cuando sidebar está minimizado */
+.main-content.expanded {
+    margin-left: 60px !important;
+    width: calc(100% - 60px) !important;
 }

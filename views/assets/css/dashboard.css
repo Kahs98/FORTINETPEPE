@@ -1,0 +1,442 @@
+/* Variables para colores */
+:root {
+    --primary-dark: #1e3c72;
+    --primary: #2a5298;
+    --primary-light: #3a62b8;
+    --primary-lighter: #4a72d8;
+    --primary-very-light: #6a92f8;
+    --secondary: #1a2a4a;
+    --secondary-light: #2a3a5a;
+    --accent: #0088cc;
+    --danger: #e74c3c;
+    --warning: #f39c12;
+    --info: #3498db;
+    --success: #2ecc71;
+    --grey-dark: #2c3e50;
+    --grey: #34495e;
+    --grey-light: #7f8c8d;
+    --white: #ffffff;
+    --black: #000000;
+    --background: #111827;
+    --card-bg: #1f2937;
+    --border-color: #374151;
+    --text-color: #f3f4f6;
+    --text-muted: #9ca3af;
+}
+
+/* Estilos generales */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--background);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+.dashboard-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Barra de navegación superior */
+.top-nav {
+    display: flex;
+    align-items: center;
+    background: linear-gradient(to right, var(--primary-dark), var(--primary));
+    padding: 0.8rem 1.5rem;
+    height: 60px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.logo-section {
+    display: flex;
+    align-items: center;
+    margin-right: 2rem;
+}
+
+.logo {
+    height: 30px;
+    margin-right: 0.5rem;
+}
+
+.brand-name {
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: var(--white);
+}
+
+.main-nav {
+    display: flex;
+    margin-right: auto;
+}
+
+.main-nav a {
+    color: var(--white);
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    margin-right: 0.5rem;
+    font-weight: 500;
+    transition: background-color 0.3s;
+}
+
+.main-nav a.active, .main-nav a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.search-bar {
+    display: flex;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    padding: 0.3rem;
+    margin-right: 1rem;
+}
+
+.search-bar input {
+    background: none;
+    border: none;
+    color: var(--white);
+    padding: 0.3rem 0.6rem;
+    width: 200px;
+    outline: none;
+}
+
+.search-bar input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.search-bar button {
+    background: none;
+    border: none;
+    color: var(--white);
+    cursor: pointer;
+    padding: 0 0.5rem;
+}
+
+.user-controls {
+    display: flex;
+    align-items: center;
+}
+
+.entity-id {
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    margin-right: 1rem;
+}
+
+.help-link {
+    color: var(--white);
+    text-decoration: none;
+    margin-right: 1rem;
+}
+
+.user-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+/* Panel principal */
+.dashboard-main {
+    display: flex;
+    flex: 1;
+    padding: 1rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.panel-section {
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.left-panel, .right-panel {
+    flex: 1 1 48%;
+    min-width: 400px; /* o menos si quieres aún más adaptabilidad */
+}
+
+.panel-header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.panel-header h2 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--primary-very-light);
+}
+
+.panel-title-decoration {
+    height: 3px;
+    width: 50px;
+    background: linear-gradient(to right, var(--primary), var(--primary-lighter));
+    border-radius: 3px;
+    margin-top: 0.3rem;
+}
+
+.time-filter {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.time-btn {
+    background-color: var(--secondary);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.time-btn.active, .time-btn:hover {
+    background-color: var(--primary);
+}
+
+.change-btn {
+    background-color: var(--primary);
+    color: var(--white);
+    border: none;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+/* Sección de detecciones */
+.detections-activity, .notable-detections, .observations-panel, .investigations-panel, .resolved-detections {
+    padding: 1rem;
+}
+
+.detections-activity h3, .notable-detections h3, .observations-panel h3, .investigations-panel h3, .resolved-detections h3 {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+}
+
+.info-badge {
+    background-color: var(--primary);
+    color: var(--white);
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
+    border-radius: 10px;
+    margin-left: 0.5rem;
+}
+
+.chart-container {
+    height: 300px;
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+/* Tablas */
+.detections-table, .observations-table, .investigations-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.detections-table th, .observations-table th, .investigations-table th {
+    text-align: left;
+    padding: 0.6rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.detections-table td, .observations-table td, .investigations-table td {
+    padding: 0.6rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.detection-item.critical td:first-child {
+    border-left: 3px solid var(--danger);
+    padding-left: 0.8rem;
+}
+
+.detection-item.high td:first-child {
+    border-left: 3px solid var(--warning);
+    padding-left: 0.8rem;
+}
+
+.detection-item.medium td:first-child {
+    border-left: 3px solid var(--info);
+    padding-left: 0.8rem;
+}
+
+/* Indicadores */
+.indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+}
+
+.indicator.http {
+    background-color: var(--primary-very-light);
+}
+
+.indicator.raw {
+    background-color: var(--info);
+}
+
+.indicator.malicious {
+    background-color: var(--danger);
+}
+
+.indicator.process {
+    background-color: var(--warning);
+}
+
+.indicator.suspicious {
+    background-color: var(--success);
+}
+
+.indicator.tcp {
+    background-color: var(--grey-light);
+}
+
+/* Estados */
+.status-open {
+    background-color: var(--primary);
+    color: var(--white);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+}
+
+/* Panel de métricas */
+.metrics-panel {
+    display: flex;
+    gap: 1rem;
+}
+
+.total-metric {
+    flex: 1;
+    background-color: var(--secondary);
+    border-radius: 8px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.charts-metrics {
+    flex: 2;
+    display: flex;
+    gap: 1rem;
+}
+
+.chart-metric {
+    flex: 1;
+    background-color: var(--secondary);
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.metric-value {
+    font-size: 3rem;
+    font-weight: bold;
+    color: var(--primary-very-light);
+}
+
+/* Gráficos de observaciones */
+.observations-chart {
+    height: 200px;
+    margin-top: 1rem;
+}
+
+/* Animaciones */
+@keyframes pulse {
+    0% {
+        opacity: 0.7;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0.7;
+    }
+}
+
+.info-badge {
+    animation: pulse 1.5s infinite;
+}
+
+.detection-item.critical {
+    position: relative;
+}
+
+.detection-item.critical::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(231, 76, 60, 0.05);
+    animation: pulse 2s infinite;
+    pointer-events: none;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .dashboard-main {
+        flex-direction: column;
+    }
+    
+    .metrics-panel {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 768px) {
+    .top-nav {
+        flex-wrap: wrap;
+        height: auto;
+    }
+    
+    .main-nav {
+        order: 3;
+        width: 100%;
+        margin-top: 0.5rem;
+    }
+    
+    .search-bar {
+        order: 2;
+        margin-right: 0;
+        margin-left: auto;
+    }
+}
+
+canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+.chart-container {
+    height: 300px;
+    position: relative;
+}

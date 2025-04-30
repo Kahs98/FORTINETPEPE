@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Restablecer contraseña</title>
-    <link rel="stylesheet" href="views/assets/css/style.css">
+    <link rel="stylesheet" href="views/assets/css/style.css?v=<?= time() ?>">
 </head>
-<body>
+<body class="login">
     <div class="container">
         <div class="login-box">
             <h2>Restablecer Contraseña</h2>
