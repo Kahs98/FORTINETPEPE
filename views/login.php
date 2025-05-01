@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="imagenes/logo.png" type="image/png">
     <title><?= APP_NAME ?> - Iniciar Sesión</title>
-    <link rel="stylesheet" href="views/assets/css/style.css?v=<?= time() ?>">
+    <link rel="stylesheet" href="assets/css/style.css?v=<?= time() ?>">
 
 </head>
 <body class="login">

@@ -10,7 +10,7 @@ define('DB_USER', 'root');
 define('DB_PASS', '');
 
 // Configuración de rutas
-define('BASE_URL', 'http://localhost/FORTINETPEPE');
+define('BASE_URL', 'http://localhost/FORTINETPEPE/');
 
 // Configuración de la aplicación
 define('APP_NAME', 'Sistema de Login Seguro');

@@ -1,3 +1,7 @@
+<?php
+// views/dashboard.php
+$page = $_GET['page'] ?? '';
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -5,58 +9,67 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Login Seguro - Dashboard</title>
     <link rel="icon" href="imagenes/logo.png" type="image/png">
-    <link rel="stylesheet" href="views/assets/css/style.css?v=<?= time() ?>">
-    <link rel="stylesheet" href="views/assets/css/dashboard.css?v=<?= time() ?>">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- CSS principal -->
+    <link rel="stylesheet" href="assets/css/style.css?v=<?= time() ?>">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer" />
 </head>
-<body class="dashboard">
+
+<body class="dashboard <?= $page === 'dashboardglobal' ? 'dashboard-dsh' : '' ?>">
     <div class="dashboard-container">
         <!-- Barra lateral -->
-        <div class="sidebar">
+        <aside class="sidebar">
             <div class="sidebar-header">
-                <div class="sidebar-brand">Sistema de Login Seguro</div>
+                <h2 class="sidebar-brand">Sistema de Login Seguro</h2>
             </div>
-            <div class="sidebar-menu">
+            <nav class="sidebar-menu">
                 <ul>
                     <li>
-                        <a href="views/dashboard.php?page=dashboardglobal" class="nav-link <?= ($_GET['page'] ?? '') === 'dashboardglobal' ? 'active' : '' ?>">
-                            <i class="fas fa-tachometer-alt"></i><span> Dashboard</span>
+                        <a href="index.php?controller=Dashboard&action=index&page=dashboardglobal"
+                           class="nav-link <?= $page === 'dashboardglobal' ? 'active' : '' ?>">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span>Dashboard</span>
                         </a>
                     </li>
                     <li>
-                        <a href="dviews/dashboard.php?page=reporte" class="nav-link <?= ($_GET['page'] ?? '') === 'reporte' ? 'active' : '' ?>">
-                            <i class="fas fa-chart-bar"></i><span> Informe</span>
+                        <a href="index.php?controller=Dashboard&action=index&page=reporte"
+                           class="nav-link <?= $page === 'reporte' ? 'active' : '' ?>">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Informe</span>
                         </a>
                     </li>
                 </ul>
-            </div>
-        </div>
+            </nav>
+        </aside>
         
         <!-- Contenido principal -->
-        <div class="main-content">
+        <main class="main-content">
             <header class="header">
-                <div class="toggle-sidebar" onclick="toggleSidebar()">
+                <button class="toggle-sidebar" onclick="toggleSidebar()">
                     <i class="fas fa-bars"></i>
-                </div>
+                </button>
                 <div class="user-info">
                     <div class="welcome">
                         Bienvenido, <?= isset($user['username']) ? htmlspecialchars($user['username']) : 'Usuario' ?>
                     </div>
-
                     <a href="index.php?controller=Auth&action=logout" class="logout-btn">Cerrar Sesión</a>
                 </div>
             </header>
 
-            <div class="content">
+            <section class="content">
                 <?php
-                $page = $_GET['page'] ?? '';
-                $allowedPages = ['dashboardglobal', 'reporte'];
+                // Incluimos la vista correspondiente si existe
+                $allowed = ['dashboardglobal', 'reporte'];
+                $viewFile = __DIR__ . "/{$page}.php";
 
-                if (in_array($page, $allowedPages)) {
-                    include "$page.php";
+                if (in_array($page, $allowed) && file_exists($viewFile)) {
+                    include $viewFile;  // carga dashboardglobal.php o reporte.php
                 } else {
-                    // Contenido por defecto
-                    ?>
+                    // Vista de bienvenida por defecto
+                ?>
                     <div class="welcome-card">
                         <div class="logo-container">
                             <img src="imagenes/logo.png" alt="Logo">
@@ -66,11 +79,11 @@
                             <p>Has ingresado correctamente al sistema. Esta es la pantalla principal.</p>
                         </div>
                     </div>
-                    <?php
+                <?php
                 }
                 ?>
-            </div>
-        </div>
+            </section>
+        </main>
     </div>
 
     <script>
@@ -111,11 +124,13 @@
             mainContent.classList.toggle('expanded');
         }
     </script>
-    <!-- Chart.js para los gráficos -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 
-<!-- JS personalizado si tienes uno (ej: dashboard.js) -->
-<script src="views/assets/js/dashboard.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 
+    <!-- Cargar dashboard.js sólo en la vista dashboardglobal -->
+    <?php if ($page === 'dashboardglobal'): ?>
+        <script src="assets/js/dashboard.js?v=<?= time() ?>"></script>
+    <?php endif; ?>
 </body>
 </html>
