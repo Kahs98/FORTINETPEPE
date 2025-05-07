@@ -7,7 +7,7 @@ try {
 
     $username = 'admin';
     $password = password_hash('admin', PASSWORD_DEFAULT);
-    $email = 'kev.art98@gmail.com';
+    $email = 'sebastiangallegosguibertgmail.com';
 
     $stmt = $pdo->prepare("INSERT INTO users (username, password, email) VALUES (?, ?, ?)");
     $stmt->execute([$username, $password, $email]);
