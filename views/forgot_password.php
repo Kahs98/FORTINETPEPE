@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Recuperar contraseña - <?= APP_NAME ?></title>
-    <link rel="stylesheet" href="views/assets/css/style.css?v=<?= time() ?>">
+    <link rel="stylesheet" href="assets/css/style.css?v=<?= time() ?>">
 </head>
 <body class="login">
     <div class="container">

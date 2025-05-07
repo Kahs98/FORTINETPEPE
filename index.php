@@ -1,3 +1,4 @@
+    
     <?php
     /**
     * Front Controller - Punto de entrada para la aplicación
@@ -9,7 +10,7 @@
 
     // Incluir archivos de configuración
     require_once 'config/config.php';
-
+    
     // Autocargar clases
     spl_autoload_register(function($className) {
         // Convertir namespace a ruta de archivo
